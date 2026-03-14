@@ -14,7 +14,16 @@ RUN composer install --no-dev --no-scripts
 
 RUN cp .env.example .env || touch .env
 
-# CI=true disables the Wayfinder plugin (see vite.config.ts)
+# Re-create bootstrap/cache (excluded via .dockerignore but required by artisan)
+RUN mkdir -p bootstrap/cache && chmod 775 bootstrap/cache
+# Generate an app key so artisan can bootstrap
+RUN php artisan key:generate
+# Create the SQLite file so Laravel doesn't error on boot
+RUN mkdir -p database && touch database/database.sqlite
+# Pre-generate Wayfinder TypeScript routes (the Vite plugin is disabled when CI=true)
+RUN php artisan wayfinder:generate
+
+# CI=true disables the Wayfinder plugin (routes already generated above)
 ENV CI=true
 RUN npm ci && npm run build
 
@@ -40,7 +49,9 @@ COPY . .
 COPY --from=build-assets /app/public/build ./public/build
 
 # Install production PHP dependencies
-RUN composer install --no-dev --optimize-autoloader
+# bootstrap/cache is excluded via .dockerignore; recreate it so post-autoload-dump succeeds
+RUN mkdir -p bootstrap/cache && \
+    composer install --no-dev --optimize-autoloader
 
 # SQLite database file + runtime directory permissions
 RUN mkdir -p database && \
