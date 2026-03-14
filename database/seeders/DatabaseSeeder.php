@@ -29,5 +29,6 @@ class DatabaseSeeder extends Seeder
 
         $this->call(TaskSeeder::class);
         $this->call(WorkSettingsSeeder::class);
+        $this->call(HolidaySeeder::class);
     }
 }
