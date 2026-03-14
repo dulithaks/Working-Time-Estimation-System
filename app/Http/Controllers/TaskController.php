@@ -37,7 +37,7 @@ class TaskController extends Controller
      */
     public function create()
     {
-        //
+        return Inertia::render('tasks/create');
     }
 
     /**
@@ -45,7 +45,26 @@ class TaskController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'start_date' => ['required', 'date'],
+            'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
+            'estimation' => ['nullable', 'integer', 'min:0'],
+            'status' => ['required', 'in:pending,in_progress,completed'],
+        ]);
+
+        $task = Task::create([
+            'title' => $request->input('title'),
+            'description' => $request->input('description'),
+            'start_date' => $request->input('start_date'),
+            'end_date' => $request->input('end_date'),
+            'estimation' => $request->input('estimation'),
+            'status' => $request->input('status'),
+            'user_id' => $request->user()->id,
+        ]);
+
+        return redirect()->route('tasks.index');
     }
 
     /**

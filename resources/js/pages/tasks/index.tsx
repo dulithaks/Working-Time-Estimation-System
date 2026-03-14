@@ -1,12 +1,13 @@
-import { Head, usePage } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
-import tasks from '@/routes/tasks';
+import { Button } from '@/components/ui/button';
+import taskRoutes from '@/routes/tasks';
 import type { BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Tasks',
-        href: tasks.index(),
+        href: taskRoutes.index(),
     },
 ];
 
@@ -32,8 +33,17 @@ export default function Tasks() {
 
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
                 <div className="rounded-xl border border-sidebar-border/70 bg-background p-4 text-sm shadow-sm dark:border-sidebar-border">
-                    <h1 className="text-lg font-semibold">Tasks</h1>
-                    <p className="text-muted-foreground">A list of all tasks.</p>
+                    <div className="flex flex-wrap items-start justify-between gap-4">
+                        <div>
+                            <h1 className="text-lg font-semibold">Tasks</h1>
+                            <p className="text-muted-foreground">A list of all tasks.</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Link href={taskRoutes.create()}>
+                                <Button>Create task</Button>
+                            </Link>
+                        </div>
+                    </div>
                 </div>
 
                 <div className="overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
