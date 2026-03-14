@@ -8,7 +8,9 @@ Route::inertia('/', 'welcome', [
 ])->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('dashboard', 'dashboard')->name('dashboard');
+    // Redirect the dashboard to tasks
+    Route::redirect('/dashboard', '/tasks')->name('dashboard');
+
     Route::get('tasks', [\App\Http\Controllers\TaskController::class, 'index'])->name('tasks.index');
 });
 

@@ -58,13 +58,6 @@ export default function Welcome({
                                 test management and execution.
                             </p>
                         </div>
-                        <div className="relative flex flex-shrink-0 items-center justify-center lg:ml-auto">
-                            <img
-                                src="/images/welcome.png"
-                                alt="Welcome Image"
-                                className="w-full max-w-[400px] rounded-md object-cover lg:max-w-[500px]"
-                            />
-                        </div>
                     </main>
                 </div>
                 <div className="hidden h-14.5 lg:block"></div>
