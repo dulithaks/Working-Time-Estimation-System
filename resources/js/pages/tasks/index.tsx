@@ -25,7 +25,7 @@ type Task = {
 };
 
 export default function Tasks() {
-    const { tasks } = usePage().props as { tasks: Task[] };
+    const { auth, tasks } = usePage().props as { auth: { user: { role: string } }; tasks: Task[] };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -38,11 +38,13 @@ export default function Tasks() {
                             <h1 className="text-lg font-semibold">Tasks</h1>
                             <p className="text-muted-foreground">A list of all tasks.</p>
                         </div>
-                        <div className="flex items-center gap-2">
-                            <Link href={taskRoutes.create()}>
-                                <Button>Create task</Button>
-                            </Link>
-                        </div>
+                        {auth.user?.role === 'Project Manager' && (
+                            <div className="flex items-center gap-2">
+                                <Link href={taskRoutes.create()}>
+                                    <Button>Create task</Button>
+                                </Link>
+                            </div>
+                        )}
                     </div>
                 </div>
 

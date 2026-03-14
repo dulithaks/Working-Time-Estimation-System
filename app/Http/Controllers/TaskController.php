@@ -37,6 +37,10 @@ class TaskController extends Controller
      */
     public function create()
     {
+        if (auth()->user()?->role !== 'Project Manager') {
+            abort(403);
+        }
+
         return Inertia::render('tasks/create');
     }
 
@@ -45,6 +49,10 @@ class TaskController extends Controller
      */
     public function store(Request $request)
     {
+        if ($request->user()?->role !== 'Project Manager') {
+            abort(403);
+        }
+
         $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
