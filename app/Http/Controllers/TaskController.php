@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Inertia\Inertia;
 
 class TaskController extends Controller
@@ -140,10 +141,12 @@ class TaskController extends Controller
                 'id' => $task->id,
                 'title' => $task->title,
                 'description' => $task->description,
-                'start_date' => $task->start_date?->format('Y-m-d H:i'),
-                'end_date' => $task->end_date?->format('Y-m-d H:i'),
+                // Format for <input type="datetime-local" />
+                'start_date' => $task->start_date?->format('Y-m-d\TH:i'),
+                'end_date' => $task->end_date?->format('Y-m-d\TH:i'),
                 'status' => $task->status,
                 'user_id' => $task->user_id,
+                'estimation' => $task->estimation,
             ],
             'users' => $users,
         ]);
@@ -158,22 +161,44 @@ class TaskController extends Controller
             abort(403);
         }
 
-        $request->validate([
+        $task = Task::findOrFail($id);
+        $estimate = $task->estimation ?? 0;
+
+        $rules = [
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'start_date' => ['required', 'date'],
-            'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
             'status' => ['required', 'in:pending,in_progress,completed'],
             'user_id' => ['required', 'exists:users,id'],
-        ]);
+        ];
 
-        $task = Task::findOrFail($id);
+        if ($estimate < 0) {
+            $rules['end_date'] = ['required', 'date'];
+            $rules['start_date'] = ['nullable', 'date'];
+        } else {
+            $rules['start_date'] = ['required', 'date'];
+            $rules['end_date'] = ['nullable', 'date', 'after_or_equal:start_date'];
+        }
+
+        $request->validate($rules);
+
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        if ($estimate < 0) {
+            if (!$startDate && $endDate) {
+                $startDate = Carbon::parse($endDate)->addHours($estimate)->format('Y-m-d H:i:s');
+            }
+        } else {
+            if (!$endDate && $startDate) {
+                $endDate = Carbon::parse($startDate)->addHours($estimate)->format('Y-m-d H:i:s');
+            }
+        }
 
         $task->update([
             'title' => $request->input('title'),
             'description' => $request->input('description'),
-            'start_date' => $request->input('start_date'),
-            'end_date' => $request->input('end_date'),
+            'start_date' => $startDate,
+            'end_date' => $endDate,
             'status' => $request->input('status'),
             'user_id' => $request->input('user_id'),
         ]);
