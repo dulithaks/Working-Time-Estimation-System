@@ -43,11 +43,9 @@ class EstimationService
 
         $estimationInHours = $estimation * self::WORK_HOURS_PER_DAY;
 
-        $currentDay = $startDate instanceof Carbon ? $startDate : Carbon::parse($startDate);
-        // dd($currentDay, $startDate);
+        $currentDay = $startDate instanceof Carbon ? $startDate->copy() : Carbon::parse($startDate);
 
         do {
-            echo "Current day: " . $currentDay->format('Y-m-d H:i') . ", Remaining estimation in hours: $estimationInHours" . "</br>";
             // If end date is a holiday, skip it
             if ($this->isHoliday($currentDay)) {
                 $currentDay->setTime($this->workStartTime->format('H'), $this->workStartTime->format('i'))->addDay();
@@ -107,7 +105,6 @@ class EstimationService
             })->exists();
 
 
-        echo "Is " . $date->format('Y-m-d') . " a holiday? " . ($x ? 'Yes' : 'No') . "</br>";    
         return $x;
     }
 
@@ -117,6 +114,7 @@ class EstimationService
     protected function remainingHoursInDay(Carbon $date): float
     {
         $diff =  $date->diffInMinutes($date->copy()->setTime($this->workEndTime->format('H'), $this->workEndTime->format('i')));
-        return $diff > 0 ? $diff/60 : 0;
+        $diffInHours = $diff / 60;
+        return min(max($diffInHours, 0), self::WORK_HOURS_PER_DAY);
     }
 }
