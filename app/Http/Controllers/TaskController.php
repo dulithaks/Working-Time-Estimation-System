@@ -207,6 +207,48 @@ class TaskController extends Controller
     }
 
     /**
+     * Calculate the missing date (start or end) based on estimation.
+     */
+    public function calculate(Request $request, Task $task)
+    {
+        if ($request->user()?->role !== 'Project Manager') {
+            abort(403);
+        }
+
+        $request->validate([
+            'estimation' => ['required', 'numeric'],
+            'start_date' => ['nullable', 'date'],
+            'end_date' => ['nullable', 'date'],
+        ]);
+
+        $estimate = $request->input('estimation');
+
+        if ($estimate < 0) {
+            $request->validate([
+                'end_date' => ['required', 'date'],
+            ]);
+
+            $start = Carbon::parse($request->input('end_date'))->addHours($estimate);
+
+            return response()->json([
+                'start_date' => $start->format('Y-m-d\TH:i'),
+                'end_date' => $request->input('end_date'),
+            ]);
+        }
+
+        $request->validate([
+            'start_date' => ['required', 'date'],
+        ]);
+
+        $end = Carbon::parse($request->input('start_date'))->addHours($estimate);
+
+        return response()->json([
+            'start_date' => $request->input('start_date'),
+            'end_date' => $end->format('Y-m-d\TH:i'),
+        ]);
+    }
+
+    /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)

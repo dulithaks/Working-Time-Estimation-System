@@ -50,30 +50,55 @@ export default function EditTask() {
         )}:${pad(date.getMinutes())}`;
     };
 
-    const calculate = () => {
+    const calculate = async () => {
         const hours = estimate;
         if (isNaN(hours) || hours === 0) {
             return;
         }
+
+        const payload: Record<string, unknown> = {
+            estimation: hours,
+        };
 
         if (isNegative) {
             if (!endDate) {
                 setAlert('Please enter an end date before calculating the start date.');
                 return;
             }
-            const end = new Date(endDate);
-            end.setTime(end.getTime() + hours * 60 * 60 * 1000);
-            setStartDate(formatDateTimeLocal(end));
-            setAlert(null);
+
+            payload.end_date = endDate;
         } else {
             if (!startDate) {
                 setAlert('Please enter a start date before calculating the end date.');
                 return;
             }
-            const start = new Date(startDate);
-            start.setTime(start.getTime() + hours * 60 * 60 * 1000);
-            setEndDate(formatDateTimeLocal(start));
+
+            payload.start_date = startDate;
+        }
+
+        try {
+            const response = await fetch(tasks.calculate({ task: task.id }).url, {
+                method: 'post',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrf_token,
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+                const json = await response.json().catch(() => ({}));
+                setAlert(json?.message ?? 'Unable to calculate date.');
+                return;
+            }
+
+            const json = await response.json();
+
+            setStartDate(json.start_date ?? startDate);
+            setEndDate(json.end_date ?? endDate);
             setAlert(null);
+        } catch (error) {
+            setAlert('Unable to calculate date. Please try again.');
         }
     };
 

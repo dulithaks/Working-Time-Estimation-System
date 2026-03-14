@@ -16,6 +16,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('tasks', [\App\Http\Controllers\TaskController::class, 'store'])->name('tasks.store');
     Route::get('tasks/{task}/edit', [\App\Http\Controllers\TaskController::class, 'edit'])->name('tasks.edit');
     Route::put('tasks/{task}', [\App\Http\Controllers\TaskController::class, 'update'])->name('tasks.update');
+    Route::post('tasks/{task}/calculate', [\App\Http\Controllers\TaskController::class, 'calculate'])->name('tasks.calculate');
 
     Route::get('tasks/{task}/estimate', [\App\Http\Controllers\TaskController::class, 'estimate'])->name('tasks.estimate');
     Route::post('tasks/{task}/estimate', [\App\Http\Controllers\TaskController::class, 'updateEstimation'])->name('tasks.updateEstimation');
