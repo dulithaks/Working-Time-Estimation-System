@@ -1,5 +1,10 @@
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import taskRoutes from '@/routes/tasks';
+import workTimeRoutes from '@/routes/work-time';
 import type { BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -14,6 +19,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function WorkTimeSettings({ settings }: { settings: { workday_start: string; workday_end: string } | null }) {
+    const { auth, csrf_token } = usePage().props as { auth: { user: { role: string } }; csrf_token: string };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Work time settings" />
@@ -26,16 +33,41 @@ export default function WorkTimeSettings({ settings }: { settings: { workday_sta
 
                 <div className="rounded-xl border border-sidebar-border/70 bg-background p-6 shadow-sm dark:border-sidebar-border">
                     {settings ? (
-                        <div className="grid gap-4">
-                            <div className="grid gap-1">
-                                <p className="text-sm font-medium">Workday start</p>
-                                <p className="text-base text-foreground">{settings.workday_start}</p>
+                        <form
+                            action={workTimeRoutes.update().url}
+                            method="post"
+                            className="grid gap-4"
+                        >
+                            <input type="hidden" name="_token" value={csrf_token} />                            <input type="hidden" name="_method" value="PUT" />
+                            <div className="grid gap-2 md:grid-cols-2">
+                                <div className="grid gap-2">
+                                    <Label htmlFor="workday_start">Workday start</Label>
+                                    <Input
+                                        id="workday_start"
+                                        name="workday_start"
+                                        type="time"
+                                        defaultValue={settings.workday_start}
+                                        disabled={auth.user?.role !== 'Project Manager'}
+                                    />
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="workday_end">Workday end</Label>
+                                    <Input
+                                        id="workday_end"
+                                        name="workday_end"
+                                        type="time"
+                                        defaultValue={settings.workday_end}
+                                        disabled={auth.user?.role !== 'Project Manager'}
+                                    />
+                                </div>
                             </div>
-                            <div className="grid gap-1">
-                                <p className="text-sm font-medium">Workday end</p>
-                                <p className="text-base text-foreground">{settings.workday_end}</p>
-                            </div>
-                        </div>
+
+                            {auth.user?.role === 'Project Manager' && (
+                                <div className="flex justify-end">
+                                    <Button type="submit">Save</Button>
+                                </div>
+                            )}
+                        </form>
                     ) : (
                         <p className="text-sm text-muted-foreground">Work time settings are not configured yet.</p>
                     )}

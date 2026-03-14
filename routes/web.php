@@ -19,6 +19,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('tasks/{task}/estimate', [\App\Http\Controllers\TaskController::class, 'updateEstimation'])->name('tasks.updateEstimation');
 
     Route::get('settings/work-time', [\App\Http\Controllers\Settings\WorkSettingsController::class, 'edit'])->name('work-time.edit');
+    Route::put('settings/work-time', [\App\Http\Controllers\Settings\WorkSettingsController::class, 'update'])->name('work-time.update');
 });
 
 require __DIR__.'/settings.php';
