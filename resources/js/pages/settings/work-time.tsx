@@ -1,4 +1,5 @@
 import { Head, usePage } from '@inertiajs/react';
+import { useEffect } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,6 +24,26 @@ export default function WorkTimeSettings({ settings }: { settings: { workday_sta
         csrf_token: string;
         flash?: { success?: string; error?: string };
     }>().props;
+
+    // Some browsers (especially mobile) only open the native time picker when showPicker() is called.
+    // This ensures the picker opens on click/focus when supported.
+    useEffect(() => {
+        const openPicker = (event: Event) => {
+            const target = event.target as HTMLInputElement | null;
+            target?.showPicker?.();
+        };
+
+        const start = document.getElementById('workday_start');
+        const end = document.getElementById('workday_end');
+
+        start?.addEventListener('click', openPicker);
+        end?.addEventListener('click', openPicker);
+
+        return () => {
+            start?.removeEventListener('click', openPicker);
+            end?.removeEventListener('click', openPicker);
+        };
+    }, []);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
