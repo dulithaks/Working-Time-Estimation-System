@@ -1,49 +1,59 @@
-# Step 1: Build React Assets using Node
-FROM node:20 AS build-assets
+# ─── Stage 1: Build JS/CSS assets ───────────────────────────────────────────
+FROM php:8.4-alpine AS build-assets
+
+# Node + PHP extensions required by Vite/Wayfinder build
+RUN apk add --no-cache nodejs npm libxml2-dev oniguruma-dev && \
+    docker-php-ext-install mbstring xml bcmath
+
 WORKDIR /app
 COPY . .
-RUN npm install && npm run build
 
-# Step 2: Main PHP 8.4 Environment
+# Composer is needed so artisan can run during the Vite build
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+RUN composer install --no-dev --no-scripts
+
+RUN cp .env.example .env || touch .env
+
+# CI=true disables the Wayfinder plugin (see vite.config.ts)
+ENV CI=true
+RUN npm ci && npm run build
+
+# ─── Stage 2: Production image (nginx + php-fpm + supervisor) ────────────────
 FROM php:8.4-fpm-alpine
 
-# Install system dependencies for Laravel & SQLite
 RUN apk add --no-cache \
     nginx \
     supervisor \
-    libpq-dev \
     libxml2-dev \
     sqlite-dev \
-    unzip
+    unzip \
+    oniguruma-dev
 
-# Install PHP extensions
-RUN docker-php-ext-install bcmath opcache pdo_sqlite
+RUN docker-php-ext-install bcmath opcache pdo_sqlite mbstring xml
 
-# Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Set working directory
 WORKDIR /var/www/html
-
-# Copy application code
 COPY . .
-# Copy built React assets from the first stage
+
+# Bring in the compiled front-end assets from Stage 1
 COPY --from=build-assets /app/public/build ./public/build
 
-# Install Laravel dependencies
+# Install production PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# Setup SQLite Database
-RUN mkdir -p database && touch database/database.sqlite
-RUN chmod -R 777 storage bootstrap/cache database
+# SQLite database file + runtime directory permissions
+RUN mkdir -p database && \
+    touch database/database.sqlite && \
+    chown -R www-data:www-data storage bootstrap/cache database && \
+    chmod -R 775 storage bootstrap/cache database
 
-# Copy Nginx configuration (provided below)
-COPY docker/nginx.conf /etc/nginx/http.d/default.conf
+# Copy Docker support files
+COPY docker/nginx.conf       /etc/nginx/http.d/default.conf
+COPY docker/supervisord.conf /etc/supervisord.conf
+COPY docker/entrypoint.sh    /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
-# Expose port 8080 for Cloud Run
 EXPOSE 8080
 
-# Run migrations and start the server
-CMD php artisan migrate --force && \
-    php artisan db:seed --force && \
-    php artisan serve --host=0.0.0.0 --port=8080
+ENTRYPOINT ["/entrypoint.sh"]
