@@ -9,6 +9,7 @@ use App\Models\WorkSetting;
 class EstimationService
 {
     private const WORK_HOURS_PER_DAY = 8;
+    private const WORK_MINUTES_PER_DAY = self::WORK_HOURS_PER_DAY * 60;
     private Carbon $workStartTime;
     private Carbon $workEndTime;
 
@@ -85,7 +86,7 @@ class EstimationService
             throw new \InvalidArgumentException('Estimation must be a negative value when calculating start date.');
         }
 
-        $estimationInHours = abs($estimation * self::WORK_HOURS_PER_DAY);
+        $estimationInMinutes = abs($estimation * self::WORK_MINUTES_PER_DAY);
 
         $currentDay = $endDate instanceof Carbon ? $endDate->copy() : Carbon::parse($endDate);
         
@@ -95,7 +96,7 @@ class EstimationService
         }
 
         do {
-            echo "Current day: " . $currentDay->format('Y-m-d H:i') . ", Remaining estimation in hours: " . $estimationInHours . "\n";
+            echo "Current day: " . $currentDay->format('Y-m-d H:i') . ", Remaining estimation in minutes: " . $estimationInMinutes . "\n";
             // If end date is a holiday, skip it
             if ($this->isHoliday($currentDay)) {
                 $currentDay->setTimeFrom($this->workEndTime)->subDay();
@@ -109,20 +110,17 @@ class EstimationService
             }
 
             // Calculate remaining working hours in the current day
-            $remainingHoursInCurrentDay = $this->remainingHoursInDayByEndDateTime($currentDay);
+            $remainingMinutesInCurrentDay = $this->remainingHoursInDayByEndDateTime($currentDay);
             
-            if ($remainingHoursInCurrentDay >= $estimationInHours) {
-                return $currentDay->copy()->subHours($estimationInHours);
+            if ($remainingMinutesInCurrentDay >= $estimationInMinutes) {
+                return $currentDay->copy()->subMinutes(floor($estimationInMinutes));
                 } else {
-                    $estimationInHours -= $remainingHoursInCurrentDay;
+                    $estimationInMinutes -= $remainingMinutesInCurrentDay;
                     $currentDay = $currentDay->copy()
                     ->setTimeFrom($this->workEndTime)
                     ->subDay();
-                    // dd($remainingHoursInCurrentDay, 'estimationInHours after subtraction: ' . $estimationInHours, 'currentDay after moving to previous day: ' . $currentDay->format('Y-m-d H:i'));
             }
-
-            // dd('after calculation', $currentDay->format('Y-m-d H:i'), $estimationInHours);
-        } while ($estimationInHours > 0);
+        } while ($estimationInMinutes > 0);
 
         return $currentDay;
     }
@@ -132,14 +130,11 @@ class EstimationService
      */
     protected function isHoliday(Carbon $date): bool
     {
-        $x = Holiday::whereDate('date', $date->format('Y-m-d'))
+        return Holiday::whereDate('date', $date->format('Y-m-d'))
             ->orWhere(function ($query) use ($date) {
                 $query->where('date', 'like', '%-' . $date->format('m') . '-' . $date->format('d'))
                     ->where('is_recurring', true);
             })->exists();
-
-
-        return $x;
     }
 
     /**
@@ -157,8 +152,7 @@ class EstimationService
      */
     protected function remainingHoursInDayByEndDateTime(Carbon $endDateTime): float
     {
-        $diff =  $endDateTime->copy()->setTimeFrom($this->workStartTime)->diffInMinutes($endDateTime);
-        $diffInHours = $diff / 60;
-        return min(max($diffInHours, 0), self::WORK_HOURS_PER_DAY);
+        $diffInMinutes =  $endDateTime->copy()->setTimeFrom($this->workStartTime)->diffInMinutes($endDateTime);
+        return min(max($diffInMinutes, 0), self::WORK_MINUTES_PER_DAY);
     }
 }
