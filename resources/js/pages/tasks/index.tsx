@@ -101,6 +101,10 @@ export default function Tasks() {
                                                 <Link href={taskRoutes.estimate({ task: task.id })}>
                                                     <Button size="sm">Add estimation</Button>
                                                 </Link>
+                                            ) : auth.user?.role === 'Project Manager' ? (
+                                                <Link href={taskRoutes.edit({ task: task.id })}>
+                                                    <Button size="sm">Edit</Button>
+                                                </Link>
                                             ) : (
                                                 '-'
                                             )}
