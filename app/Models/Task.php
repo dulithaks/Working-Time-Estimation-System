@@ -21,7 +21,7 @@ class Task extends Model
         'start_date' => 'datetime',
         'end_date' => 'datetime',
         'user_id' => 'integer',
-        'estimation' => 'integer',
+        'estimation' => 'float',
         'status' => 'string',
     ];
 

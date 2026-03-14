@@ -77,7 +77,7 @@ export default function CreateTask() {
                         <div className="grid gap-2 md:grid-cols-2">
                             <div className="grid gap-2">
                                 <Label htmlFor="estimation">Estimation (hours)</Label>
-                                <Input id="estimation" name="estimation" type="number" min={0} />
+                                <Input id="estimation" name="estimation" type="number" step="any" />
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="status">Status</Label>

@@ -14,6 +14,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('tasks', [\App\Http\Controllers\TaskController::class, 'index'])->name('tasks.index');
     Route::get('tasks/create', [\App\Http\Controllers\TaskController::class, 'create'])->name('tasks.create');
     Route::post('tasks', [\App\Http\Controllers\TaskController::class, 'store'])->name('tasks.store');
+
+    Route::get('tasks/{task}/estimate', [\App\Http\Controllers\TaskController::class, 'estimate'])->name('tasks.estimate');
+    Route::post('tasks/{task}/estimate', [\App\Http\Controllers\TaskController::class, 'updateEstimation'])->name('tasks.updateEstimation');
 });
 
 require __DIR__.'/settings.php';

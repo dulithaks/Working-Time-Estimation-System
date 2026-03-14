@@ -59,6 +59,7 @@ export default function Tasks() {
                                 <th className="px-4 py-3">Estimation</th>
                                 <th className="px-4 py-3">Status</th>
                                 <th className="px-4 py-3">Description</th>
+                                <th className="px-4 py-3">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-border bg-background">
@@ -94,6 +95,15 @@ export default function Tasks() {
                                         </td>
                                         <td className="px-4 py-3 text-muted-foreground">
                                             {task.description}
+                                        </td>
+                                        <td className="px-4 py-3 text-muted-foreground">
+                                            {auth.user?.role === 'Engineer' ? (
+                                                <Link href={taskRoutes.estimate({ task: task.id })}>
+                                                    <Button size="sm">Add estimation</Button>
+                                                </Link>
+                                            ) : (
+                                                '-'
+                                            )}
                                         </td>
                                     </tr>
                                 ))

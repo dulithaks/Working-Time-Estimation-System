@@ -33,6 +33,42 @@ class TaskController extends Controller
     }
 
     /**
+     * Show the form for adding/updating estimation.
+     */
+    public function estimate(Task $task)
+    {
+        if (auth()->user()?->role !== 'Engineer') {
+            abort(403);
+        }
+
+        return Inertia::render('tasks/estimate', [
+            'task' => [
+                'id' => $task->id,
+                'title' => $task->title,
+                'estimation' => $task->estimation,
+            ],
+        ]);
+    }
+
+    /**
+     * Update task estimation.
+     */
+    public function updateEstimation(Request $request, Task $task)
+    {
+        if ($request->user()?->role !== 'Engineer') {
+            abort(403);
+        }
+
+        $request->validate([
+            'estimation' => ['required', 'numeric'],
+        ]);
+
+        $task->update(["estimation" => $request->input('estimation')]);
+
+        return redirect()->route('tasks.index');
+    }
+
+    /**
      * Show the form for creating a new resource.
      */
     public function create()
@@ -58,7 +94,7 @@ class TaskController extends Controller
             'description' => ['nullable', 'string'],
             'start_date' => ['required', 'date'],
             'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
-            'estimation' => ['nullable', 'integer', 'min:0'],
+            'estimation' => ['nullable', 'numeric'],
             'status' => ['required', 'in:pending,in_progress,completed'],
         ]);
 
