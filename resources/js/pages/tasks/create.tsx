@@ -18,7 +18,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function CreateTask() {
-    const { csrf_token, users } = usePage().props as { csrf_token: string; users: Array<{ id: number; name: string }> };
+    const { csrf_token, users } = usePage<{ csrf_token: string; users: Array<{ id: number; name: string }> }>().props;
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>

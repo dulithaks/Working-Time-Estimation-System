@@ -25,7 +25,7 @@ type Task = {
 };
 
 export default function Tasks() {
-    const { auth, tasks } = usePage().props as { auth: { user: { role: string } }; tasks: Task[] };
+    const { auth, tasks } = usePage<{ auth: { user: { role: string } }; tasks: Task[] }>().props;
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>

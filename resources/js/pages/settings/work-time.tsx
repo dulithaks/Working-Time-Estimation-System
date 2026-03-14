@@ -3,7 +3,6 @@ import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import taskRoutes from '@/routes/tasks';
 import workTimeRoutes from '@/routes/work-time';
 import type { BreadcrumbItem } from '@/types';
 
@@ -19,7 +18,11 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function WorkTimeSettings({ settings }: { settings: { workday_start: string; workday_end: string } | null }) {
-    const { auth, csrf_token } = usePage().props as { auth: { user: { role: string } }; csrf_token: string };
+    const { auth, csrf_token, flash } = usePage<{
+        auth: { user: { role: string } };
+        csrf_token: string;
+        flash?: { success?: string; error?: string };
+    }>().props;
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>

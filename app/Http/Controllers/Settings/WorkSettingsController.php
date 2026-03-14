@@ -42,6 +42,6 @@ class WorkSettingsController extends Controller
         $settings->workday_end = $request->input('workday_end');
         $settings->save();
 
-        return redirect()->route('work-time.edit');
+        return redirect()->route('work-time.edit')->with('success', 'Work time settings updated.');
     }
 }
