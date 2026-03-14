@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Task;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -77,7 +78,11 @@ class TaskController extends Controller
             abort(403);
         }
 
-        return Inertia::render('tasks/create');
+        $users = User::orderBy('name')->get(['id', 'name']);
+
+        return Inertia::render('tasks/create', [
+            'users' => $users,
+        ]);
     }
 
     /**
@@ -95,6 +100,7 @@ class TaskController extends Controller
             'start_date' => ['required', 'date'],
             'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
             'status' => ['required', 'in:pending,in_progress,completed'],
+            'user_id' => ['required', 'exists:users,id'],
         ]);
 
         $task = Task::create([
@@ -103,7 +109,7 @@ class TaskController extends Controller
             'start_date' => $request->input('start_date'),
             'end_date' => $request->input('end_date'),
             'status' => $request->input('status'),
-            'user_id' => $request->user()->id,
+            'user_id' => $request->input('user_id'),
         ]);
 
         return redirect()->route('tasks.index');

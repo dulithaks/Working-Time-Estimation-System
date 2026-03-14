@@ -18,7 +18,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function CreateTask() {
-    const { csrf_token } = usePage().props as { csrf_token: string };
+    const { csrf_token, users } = usePage().props as { csrf_token: string; users: Array<{ id: number; name: string }> };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -75,6 +75,23 @@ export default function CreateTask() {
                         </div>
 
                         <div className="grid gap-2 md:grid-cols-2">
+                            <div className="grid gap-2">
+                                <Label htmlFor="user_id">Assignee</Label>
+                                <select
+                                    id="user_id"
+                                    name="user_id"
+                                    className="rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                                    required
+                                >
+                                    <option value="">Select user</option>
+                                    {users.map((user) => (
+                                        <option key={user.id} value={user.id}>
+                                            {user.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
                             <div className="grid gap-2">
                                 <Label htmlFor="status">Status</Label>
                                 <select
