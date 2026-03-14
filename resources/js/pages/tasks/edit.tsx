@@ -1,5 +1,7 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
+import { XIcon } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -36,6 +38,7 @@ export default function EditTask() {
 
     const [startDate, setStartDate] = useState(task.start_date);
     const [endDate, setEndDate] = useState(task.end_date ?? '');
+    const [alert, setAlert] = useState<string | null>(null);
 
     const estimate = Number(task.estimation ?? 0);
     const isNegative = estimate < 0;
@@ -55,18 +58,22 @@ export default function EditTask() {
 
         if (isNegative) {
             if (!endDate) {
+                setAlert('Please enter an end date before calculating the start date.');
                 return;
             }
             const end = new Date(endDate);
             end.setTime(end.getTime() + hours * 60 * 60 * 1000);
             setStartDate(formatDateTimeLocal(end));
+            setAlert(null);
         } else {
             if (!startDate) {
+                setAlert('Please enter a start date before calculating the end date.');
                 return;
             }
             const start = new Date(startDate);
             start.setTime(start.getTime() + hours * 60 * 60 * 1000);
             setEndDate(formatDateTimeLocal(start));
+            setAlert(null);
         }
     };
 
@@ -95,6 +102,21 @@ export default function EditTask() {
                         method="post"
                         className="grid gap-4"
                     >
+                        {alert ? (
+                            <Alert variant="destructive" className="relative">
+                                <button
+                                    type="button"
+                                    className="absolute right-2 top-2 rounded-md p-1 text-muted-foreground hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-primary"
+                                    onClick={() => setAlert(null)}
+                                    aria-label="Close"
+                                >
+                                    <XIcon className="h-4 w-4" />
+                                </button>
+                                <AlertTitle>Error</AlertTitle>
+                                <AlertDescription>{alert}</AlertDescription>
+                            </Alert>
+                        ) : null}
+
                         <input type="hidden" name="_token" value={csrf_token} />
                         <input type="hidden" name="_method" value="PUT" />
 
