@@ -18,10 +18,10 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function EstimateTask() {
-    const { task, csrf_token } = usePage().props as {
+    const { task, csrf_token } = usePage<{
         task: { id: number; title: string; estimation?: number };
         csrf_token: string;
-    };
+    }>().props;
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>

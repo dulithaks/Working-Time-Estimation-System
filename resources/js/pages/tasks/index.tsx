@@ -25,7 +25,7 @@ type Task = {
 };
 
 export default function Tasks() {
-    const { auth, tasks } = usePage().props as { auth: { user: { role: string } }; tasks: Task[] };
+    const { auth, tasks } = usePage<{ auth: { user: { role: string } }; tasks: Task[] }>().props;
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -100,6 +100,10 @@ export default function Tasks() {
                                             {auth.user?.role === 'Engineer' ? (
                                                 <Link href={taskRoutes.estimate({ task: task.id })}>
                                                     <Button size="sm">Add estimation</Button>
+                                                </Link>
+                                            ) : auth.user?.role === 'Project Manager' ? (
+                                                <Link href={taskRoutes.edit({ task: task.id })}>
+                                                    <Button size="sm">Edit</Button>
                                                 </Link>
                                             ) : (
                                                 '-'
