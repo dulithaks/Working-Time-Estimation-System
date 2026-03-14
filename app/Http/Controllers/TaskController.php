@@ -228,7 +228,7 @@ class TaskController extends Controller
                 'end_date' => ['required', 'date'],
             ]);
 
-            $start = Carbon::parse($request->input('end_date'))->addHours($estimate);
+            $start = Carbon::parse($request->input('end_date'))->addDays($estimate);
 
             return response()->json([
                 'start_date' => $start->format('Y-m-d\TH:i'),
@@ -240,7 +240,7 @@ class TaskController extends Controller
             'start_date' => ['required', 'date'],
         ]);
 
-        $end = Carbon::parse($request->input('start_date'))->addHours($estimate);
+        $end = Carbon::parse($request->input('start_date'))->addDays($estimate);
 
         return response()->json([
             'start_date' => $request->input('start_date'),

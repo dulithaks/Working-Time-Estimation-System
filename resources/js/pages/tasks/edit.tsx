@@ -42,6 +42,7 @@ export default function EditTask() {
 
     const estimate = Number(task.estimation ?? 0);
     const isNegative = estimate < 0;
+    const estimateLabel = `${estimate} day${Math.abs(estimate) === 1 ? '' : 's'}`;
 
     const formatDateTimeLocal = (date: Date) => {
         const pad = (value: number) => value.toString().padStart(2, '0');
@@ -51,25 +52,25 @@ export default function EditTask() {
     };
 
     const calculate = async () => {
-        const hours = estimate;
-        if (isNaN(hours) || hours === 0) {
+        const days = estimate;
+        if (isNaN(days) || days === 0) {
             return;
         }
 
         const payload: Record<string, unknown> = {
-            estimation: hours,
+            estimation: days,
         };
 
         if (isNegative) {
             if (!endDate) {
-                setAlert('Please enter an end date before calculating the start date.');
+                setAlert('Please enter an end date (YYYY-MM-DD) before calculating the start date.');
                 return;
             }
 
             payload.end_date = endDate;
         } else {
             if (!startDate) {
-                setAlert('Please enter a start date before calculating the end date.');
+                setAlert('Please enter a start date (YYYY-MM-DD) before calculating the end date.');
                 return;
             }
 
@@ -166,11 +167,11 @@ export default function EditTask() {
 
                         <div className="grid gap-2 md:grid-cols-2">
                             <div className="grid gap-2">
-                                <Label htmlFor="estimation">Estimation</Label>
+                                <Label htmlFor="estimation">Estimation (days)</Label>
                                 <Input
                                     id="estimation"
                                     name="estimation"
-                                    value={String(task.estimation)}
+                                    value={`${estimateLabel}`}
                                     readOnly
                                 />
                             </div>
