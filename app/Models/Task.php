@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
 class Task extends Model
@@ -11,17 +12,17 @@ class Task extends Model
         'description',
         'start_date',
         'end_date',
-        'status',
-        'estimation',
         'user_id',
+        'estimation',
+        'status',
     ];
 
     protected $casts = [
         'start_date' => 'date',
         'end_date' => 'date',
-        'status' => 'string',
-        'estimation' => 'integer',
         'user_id' => 'integer',
+        'estimation' => 'integer',
+        'status' => 'string',
     ];
 
     public function user()

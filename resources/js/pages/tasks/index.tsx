@@ -15,6 +15,12 @@ type Task = {
     title: string;
     description: string;
     start_date: string;
+    end_date?: string;
+    estimation?: number;
+    user?: {
+        name: string;
+    };
+    status?: string;
 };
 
 export default function Tasks() {
@@ -36,6 +42,10 @@ export default function Tasks() {
                             <tr>
                                 <th className="px-4 py-3">Title</th>
                                 <th className="px-4 py-3">Start date</th>
+                                <th className="px-4 py-3">End date</th>
+                                <th className="px-4 py-3">Assignee</th>
+                                <th className="px-4 py-3">Estimation</th>
+                                <th className="px-4 py-3">Status</th>
                                 <th className="px-4 py-3">Description</th>
                             </tr>
                         </thead>
@@ -57,6 +67,18 @@ export default function Tasks() {
                                         </td>
                                         <td className="px-4 py-3 text-muted-foreground">
                                             {task.start_date}
+                                        </td>
+                                        <td className="px-4 py-3 text-muted-foreground">
+                                            {task.end_date ?? '-'}
+                                        </td>
+                                        <td className="px-4 py-3 text-muted-foreground">
+                                            {task.user?.name ?? '-'}
+                                        </td>
+                                        <td className="px-4 py-3 text-muted-foreground">
+                                            {task.estimation ?? '-'}
+                                        </td>
+                                        <td className="px-4 py-3 text-muted-foreground">
+                                            {task.status ?? '-'}
                                         </td>
                                         <td className="px-4 py-3 text-muted-foreground">
                                             {task.description}

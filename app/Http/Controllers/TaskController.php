@@ -14,7 +14,7 @@ class TaskController extends Controller
     public function index()
     {
         return Inertia::render('tasks/index', [
-            'tasks' => Task::orderBy('start_date')->get(),
+            'tasks' => Task::with('user')->orderBy('start_date')->get(),
         ]);
     }
 
