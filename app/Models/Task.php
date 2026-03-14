@@ -18,8 +18,8 @@ class Task extends Model
     ];
 
     protected $casts = [
-        'start_date' => 'date',
-        'end_date' => 'date',
+        'start_date' => 'datetime',
+        'end_date' => 'datetime',
         'user_id' => 'integer',
         'estimation' => 'integer',
         'status' => 'string',

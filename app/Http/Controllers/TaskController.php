@@ -13,8 +13,22 @@ class TaskController extends Controller
      */
     public function index()
     {
+        $tasks = Task::with('user')
+            ->orderBy('start_date')
+            ->get()
+            ->map(fn (Task $task) => [
+                'id' => $task->id,
+                'title' => $task->title,
+                'description' => $task->description,
+                'start_date' => $task->start_date?->format('Y-m-d H:i'),
+                'end_date' => $task->end_date?->format('Y-m-d H:i'),
+                'user' => $task->user ? ['name' => $task->user->name] : null,
+                'estimation' => $task->estimation,
+                'status' => $task->status,
+            ]);
+
         return Inertia::render('tasks/index', [
-            'tasks' => Task::with('user')->orderBy('start_date')->get(),
+            'tasks' => $tasks,
         ]);
     }
 
