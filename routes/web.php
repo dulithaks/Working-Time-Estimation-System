@@ -9,6 +9,7 @@ Route::inertia('/', 'welcome', [
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
+    Route::get('tasks', [\App\Http\Controllers\TaskController::class, 'index'])->name('tasks.index');
 });
 
 require __DIR__.'/settings.php';
