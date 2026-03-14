@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Task;
 use App\Models\User;
+use App\Services\EstimationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Inertia\Inertia;
@@ -184,16 +185,6 @@ class TaskController extends Controller
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
 
-        if ($estimate < 0) {
-            if (!$startDate && $endDate) {
-                $startDate = Carbon::parse($endDate)->addHours($estimate)->format('Y-m-d H:i:s');
-            }
-        } else {
-            if (!$endDate && $startDate) {
-                $endDate = Carbon::parse($startDate)->addHours($estimate)->format('Y-m-d H:i:s');
-            }
-        }
-
         $task->update([
             'title' => $request->input('title'),
             'description' => $request->input('description'),
@@ -223,12 +214,17 @@ class TaskController extends Controller
 
         $estimate = $request->input('estimation');
 
+        $estimationService = new EstimationService();
+
         if ($estimate < 0) {
             $request->validate([
                 'end_date' => ['required', 'date'],
             ]);
 
-            $start = Carbon::parse($request->input('end_date'))->addDays($estimate);
+            $start = $estimationService->calulateStartdate(
+                $estimate,
+                $request->input('end_date'),
+            );
 
             return response()->json([
                 'start_date' => $start->format('Y-m-d\TH:i'),
@@ -240,7 +236,10 @@ class TaskController extends Controller
             'start_date' => ['required', 'date'],
         ]);
 
-        $end = Carbon::parse($request->input('start_date'))->addDays($estimate);
+        $end = $estimationService->calulateEnddate(
+            $estimate,
+            $request->input('start_date'),
+        );
 
         return response()->json([
             'start_date' => $request->input('start_date'),
