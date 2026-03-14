@@ -111,7 +111,12 @@ class EstimationService
     /**
      * Returns the remaining working hours in the day for the given date.
      */
-    protected function remainingHoursInDay(Carbon $date): float
+    protected function remainingHoursInDayByStartDateTime(Carbon $startDateTime): float
+    {
+        $diff =  $startDateTime->diffInMinutes($startDateTime->copy()->setTime($this->workEndTime->format('H'), $this->workEndTime->format('i')));
+        $diffInHours = $diff / 60;
+        return min(max($diffInHours, 0), self::WORK_HOURS_PER_DAY);
+    }
     {
         $diff =  $date->diffInMinutes($date->copy()->setTime($this->workEndTime->format('H'), $this->workEndTime->format('i')));
         $diffInHours = $diff / 60;
