@@ -46,6 +46,9 @@ COPY . .
 # Bring in the compiled front-end assets from Stage 1
 COPY --from=build-assets /app/public/build ./public/build
 
+# .env is excluded by .dockerignore — create one from the example so artisan can bootstrap
+RUN cp .env.example .env
+
 # Install production PHP dependencies
 # bootstrap/cache is excluded via .dockerignore; recreate it so post-autoload-dump succeeds
 RUN mkdir -p bootstrap/cache && \
