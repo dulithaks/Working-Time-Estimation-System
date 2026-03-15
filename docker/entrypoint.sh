@@ -8,6 +8,10 @@ if [ ! -f .env ]; then
     cp .env.example .env
 fi
 
+# Default to production-safe runtime values unless explicitly provided by Cloud Run.
+export APP_ENV="${APP_ENV:-production}"
+export APP_DEBUG="${APP_DEBUG:-false}"
+
 # Generate an app key if one was not injected via environment
 if [ -z "$APP_KEY" ]; then
     php artisan key:generate --force
