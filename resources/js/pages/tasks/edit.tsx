@@ -36,7 +36,7 @@ export default function EditTask() {
         users: Array<{ id: number; name: string }>;
     }>().props;
 
-    const [startDate, setStartDate] = useState(task.start_date);
+    const [startDate, setStartDate] = useState(task.start_date ?? '');
     const [endDate, setEndDate] = useState(task.end_date ?? '');
     const [alert, setAlert] = useState<string | null>(null);
 
@@ -63,14 +63,14 @@ export default function EditTask() {
 
         if (isNegative) {
             if (!endDate) {
-                setAlert('Please enter an end date (YYYY-MM-DD) before calculating the start date.');
+                setAlert('Please enter an end date before calculating the start date.');
                 return;
             }
 
             payload.end_date = endDate;
         } else {
             if (!startDate) {
-                setAlert('Please enter a start date (YYYY-MM-DD) before calculating the end date.');
+                setAlert('Please enter a start date before calculating the end date.');
                 return;
             }
 
@@ -215,6 +215,40 @@ export default function EditTask() {
                                     }
                                     readOnly={!isNegative}
                                 />
+                            </div>
+                        </div>
+
+                        <div className="grid gap-2 md:grid-cols-2">
+                            <div className="grid gap-2">
+                                <Label htmlFor="user_id">Assignee</Label>
+                                <select
+                                    id="user_id"
+                                    name="user_id"
+                                    className="rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                                    defaultValue={task.user_id}
+                                    required
+                                >
+                                    <option value="">Select user</option>
+                                    {users.map((user) => (
+                                        <option key={user.id} value={user.id}>
+                                            {user.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="status">Status</Label>
+                                <select
+                                    id="status"
+                                    name="status"
+                                    className="rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                                    defaultValue={task.status}
+                                >
+                                    <option value="pending">Pending</option>
+                                    <option value="in_progress">In progress</option>
+                                    <option value="completed">Completed</option>
+                                </select>
                             </div>
                         </div>
 
