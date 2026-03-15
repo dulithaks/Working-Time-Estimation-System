@@ -99,7 +99,7 @@ class TaskController extends Controller
         $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'start_date' => ['required', 'date'],
+            'start_date' => ['nullable', 'date'],
             'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
             'status' => ['required', 'in:pending,in_progress,completed'],
             'user_id' => ['required', 'exists:users,id'],
@@ -170,15 +170,9 @@ class TaskController extends Controller
             'description' => ['nullable', 'string'],
             'status' => ['required', 'in:pending,in_progress,completed'],
             'user_id' => ['required', 'exists:users,id'],
+            'start_date' => ['nullable', 'date'],
+            'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
         ];
-
-        if ($estimate < 0) {
-            $rules['end_date'] = ['required', 'date'];
-            $rules['start_date'] = ['nullable', 'date'];
-        } else {
-            $rules['start_date'] = ['required', 'date'];
-            $rules['end_date'] = ['nullable', 'date', 'after_or_equal:start_date'];
-        }
 
         $request->validate($rules);
 

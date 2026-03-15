@@ -200,7 +200,6 @@ export default function EditTask() {
                                     onChange={(event) =>
                                         setStartDate(event.target.value)
                                     }
-                                    required={!isNegative}
                                     readOnly={isNegative}
                                 />
                             </div>
@@ -214,7 +213,6 @@ export default function EditTask() {
                                     onChange={(event) =>
                                         setEndDate(event.target.value)
                                     }
-                                    required={isNegative}
                                     readOnly={!isNegative}
                                 />
                             </div>
