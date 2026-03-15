@@ -14,6 +14,8 @@ class TaskTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        // Skip CSRF middleware in tests if it's causing issues. 
+        // In Laravel 11, it's handled in bootstrap/app.php
         $this->withoutMiddleware();
     }
 

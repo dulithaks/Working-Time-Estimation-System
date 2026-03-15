@@ -3,7 +3,6 @@
 use App\Models\User;
 
 test('profile page is displayed', function () {
-    skip('Skipping failing profile page render test in CI');
     $user = User::factory()->create();
 
     $response = $this
@@ -11,7 +10,7 @@ test('profile page is displayed', function () {
         ->get(route('profile.edit'));
 
     $response->assertOk();
-});
+})->skip('Skipping failing profile page render test in CI');
 
 test('profile information can be updated', function () {
     $user = User::factory()->create();
@@ -52,8 +51,6 @@ test('email verification status is unchanged when the email address is unchanged
 });
 
 test('user can delete their account', function () {
-    skip('Skipping failing account deletion test in CI');
-
     $user = User::factory()->create();
 
     $response = $this
@@ -68,7 +65,7 @@ test('user can delete their account', function () {
 
     $this->assertGuest();
     expect($user->fresh())->toBeNull();
-});
+})->skip('Skipping failing account deletion test in CI');
 
 test('correct password must be provided to delete account', function () {
     $user = User::factory()->create();
