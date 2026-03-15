@@ -4,8 +4,9 @@ on:
   push:
     branches: [ main ]
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   run-tests:
@@ -33,9 +34,6 @@ jobs:
 
       - name: Install Node Dependencies
         run: npm ci
-
-      - name: Build Assets
-        run: npm run build
 
       - name: Copy Environment File
         run: cp .env.example .env
@@ -77,6 +75,15 @@ jobs:
       
     - name: Install Composer dependencies
       run: composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
+
+    - name: Copy Environment File
+      run: cp .env.example .env
+
+    - name: Generate Application Key
+      run: php artisan key:generate
+
+    - name: Generate Wayfinder routes
+      run: php artisan wayfinder:generate
       
     - name: Build assets
       run: npm run build
@@ -104,8 +111,8 @@ jobs:
         script: |
           cd ${{ env.TARGET_PATH }}
 
-          #  Storage symlink
-          ln -s ${{ env.TARGET_PATH }}/storage/app/public ${{ env.TARGET_PATH }}/public_html/storage
+          #  Storage symlink (idempotent)
+          ln -sf ${{ env.TARGET_PATH }}/storage/app/public ${{ env.TARGET_PATH }}/public_html/storage
           
           # Pull latest code
           git checkout main
@@ -119,14 +126,10 @@ jobs:
           
           # Clear and cache Laravel config
           php artisan migrate --force
-          php artisan db:seed --force
           php artisan config:clear
           php artisan config:cache
           php artisan route:cache
           php artisan view:cache
-          
-          # Generate sitemap
-          php artisan sitemap:generate
           
           # Clear any old cached files
           php artisan cache:clear
