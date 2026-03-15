@@ -56,7 +56,7 @@ export default function Tasks() {
                                 <th className="px-4 py-3">Start date</th>
                                 <th className="px-4 py-3">End date</th>
                                 <th className="px-4 py-3">Assignee</th>
-                                <th className="px-4 py-3">Estimation</th>
+                                <th className="px-4 py-3">Estimation (days)</th>
                                 <th className="px-4 py-3">Status</th>
                                 <th className="px-4 py-3">Description</th>
                                 <th className="px-4 py-3">Actions</th>

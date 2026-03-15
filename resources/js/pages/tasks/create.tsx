@@ -2,6 +2,7 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import InputError from '@/components/input-error';
 import AppLayout from '@/layouts/app-layout';
 import tasks from '@/routes/tasks';
 import type { BreadcrumbItem } from '@/types';
@@ -18,7 +19,11 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function CreateTask() {
-    const { csrf_token, users } = usePage<{ csrf_token: string; users: Array<{ id: number; name: string }> }>().props;
+    const { csrf_token, users, errors } = usePage<{
+        csrf_token: string;
+        users: Array<{ id: number; name: string }>;
+        errors?: Record<string, string>;
+    }>().props;
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -47,11 +52,13 @@ export default function CreateTask() {
                         <div className="grid gap-2">
                             <Label htmlFor="title">Title</Label>
                             <Input id="title" name="title" required />
+                            <InputError message={errors?.title} />
                         </div>
 
                         <div className="grid gap-2">
                             <Label htmlFor="description">Description</Label>
                             <Input id="description" name="description" />
+                            <InputError message={errors?.description} />
                         </div>
 
                         <div className="grid gap-2 md:grid-cols-2">
@@ -62,6 +69,7 @@ export default function CreateTask() {
                                     name="start_date"
                                     type="datetime-local"
                                 />
+                                <InputError message={errors?.start_date} />
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="end_date">End date</Label>
@@ -70,6 +78,7 @@ export default function CreateTask() {
                                     name="end_date"
                                     type="datetime-local"
                                 />
+                                <InputError message={errors?.end_date} />
                             </div>
                         </div>
 
@@ -89,6 +98,7 @@ export default function CreateTask() {
                                         </option>
                                     ))}
                                 </select>
+                                <InputError message={errors?.user_id} />
                             </div>
 
                             <div className="grid gap-2">
@@ -103,6 +113,7 @@ export default function CreateTask() {
                                     <option value="in_progress">In progress</option>
                                     <option value="completed">Completed</option>
                                 </select>
+                                <InputError message={errors?.status} />
                             </div>
                         </div>
 
