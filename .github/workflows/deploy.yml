@@ -110,9 +110,6 @@ jobs:
         port: 22
         script: |
           cd ${{ env.TARGET_PATH }}
-
-          #  Storage symlink (idempotent)
-          ln -sf ${{ env.TARGET_PATH }}/storage/app/public ${{ env.TARGET_PATH }}/public_html/storage
           
           # Pull latest code
           git checkout main
@@ -130,6 +127,7 @@ jobs:
           php artisan config:cache
           php artisan route:cache
           php artisan view:cache
+          php artisan storage:link
           
           # Clear any old cached files
           php artisan cache:clear
