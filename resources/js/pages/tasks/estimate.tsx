@@ -49,7 +49,7 @@ export default function EstimateTask() {
                         <input type="hidden" name="_token" value={csrf_token} />
 
                         <div className="grid gap-2">
-                            <Label htmlFor="estimation">Estimation (hours)</Label>
+                            <Label htmlFor="estimation">Estimation (days)</Label>
                             <Input
                                 id="estimation"
                                 name="estimation"
