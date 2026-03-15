@@ -23,6 +23,8 @@ export default function Login({
     canResetPassword,
     canRegister,
 }: Props) {
+    const loginRoute = store();
+
     return (
         <AuthLayout
             title="Log in to your account"
@@ -31,7 +33,8 @@ export default function Login({
             <Head title="Log in" />
 
             <Form
-                {...store.form()}
+                action={loginRoute.url}
+                method={loginRoute.method}
                 resetOnSuccess={['password']}
                 className="flex flex-col gap-6"
             >
