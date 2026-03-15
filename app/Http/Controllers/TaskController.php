@@ -114,7 +114,7 @@ class TaskController extends Controller
             'user_id' => $request->input('user_id'),
         ]);
 
-        return redirect()->route('tasks.index');
+        return redirect()->route('tasks.index')->with('success', 'Task created successfully!');
     }
 
     /**
@@ -188,7 +188,7 @@ class TaskController extends Controller
             'user_id' => $request->input('user_id'),
         ]);
 
-        return redirect()->route('tasks.index');
+        return redirect()->route('tasks.index')->with('success', 'Task updated successfully!');
     }
 
     /**
