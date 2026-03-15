@@ -27,12 +27,10 @@ RUN php artisan wayfinder:generate
 ENV CI=true
 RUN npm ci && npm run build
 
-# ─── Stage 2: Production image (nginx + php-fpm + supervisor) ────────────────
-FROM php:8.4-fpm-alpine
+# ─── Stage 2: Production image (php-cli + artisan serve) ────────────────────
+FROM php:8.4-cli-alpine
 
 RUN apk add --no-cache \
-    nginx \
-    supervisor \
     libxml2-dev \
     sqlite-dev \
     unzip \
@@ -59,10 +57,7 @@ RUN mkdir -p database && \
     chown -R www-data:www-data storage bootstrap/cache database && \
     chmod -R 775 storage bootstrap/cache database
 
-# Copy Docker support files
-COPY docker/nginx.conf       /etc/nginx/http.d/default.conf
-COPY docker/supervisord.conf /etc/supervisord.conf
-COPY docker/entrypoint.sh    /entrypoint.sh
+COPY docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 EXPOSE 8080
