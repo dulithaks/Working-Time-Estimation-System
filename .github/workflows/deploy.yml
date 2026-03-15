@@ -1,0 +1,132 @@
+name: Build Assets and Deploy to Hostinger
+
+on:
+  push:
+    branches: [ main ]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.4
+          tools: composer:v2
+          coverage: xdebug
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Install Node Dependencies
+        run: npm ci
+
+      - name: Build Assets
+        run: npm run build
+
+      - name: Copy Environment File
+        run: cp .env.example .env
+
+      - name: Generate Application Key
+        run: php artisan key:generate
+
+      - name: Tests
+        run: ./vendor/bin/pest
+
+  build-and-deploy:
+    needs: run-tests
+    runs-on: ubuntu-latest
+
+    environment:
+      name: production
+
+    env:
+      TARGET_PATH: "/var/www/wtes"
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+        cache: 'npm'
+        
+    - name: Install NPM dependencies
+      run: npm ci
+      
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: 8.4
+        tools: composer:v2
+      
+    - name: Install Composer dependencies
+      run: composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
+      
+    - name: Build assets
+      run: npm run build
+      
+    - name: Deploy build folder to server
+      uses: appleboy/scp-action@v1.0.0
+      with:
+        host: ${{ secrets.HOSTINGER_SSH_HOST }}
+        username: ${{ secrets.HOSTINGER_SSH_USERNAME }}
+        password: ${{ secrets.HOSTINGER_SSH_PASSWORD }}
+        port: 22
+        source: "public/*"
+        target: "${{ env.TARGET_PATH }}/public/"
+        timeout: 30s
+        command_timeout: 1m
+        strip_components: 1
+        
+    - name: Run server update commands
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.HOSTINGER_SSH_HOST }}
+        username: ${{ secrets.HOSTINGER_SSH_USERNAME }}
+        password: ${{ secrets.HOSTINGER_SSH_PASSWORD }}
+        port: 22
+        script: |
+          cd ${{ env.TARGET_PATH }}
+
+          #  Storage symlink
+          ln -s ${{ env.TARGET_PATH }}/storage/app/public ${{ env.TARGET_PATH }}/public_html/storage
+          
+          # Pull latest code
+          git checkout main
+          git pull origin main
+          
+          # Install/update composer dependencies
+          php ~/composer install --no-dev --optimize-autoloader
+          
+          # Set proper permissions
+          chmod -R 755 storage bootstrap/cache
+          
+          # Clear and cache Laravel config
+          php artisan migrate --force
+          php artisan db:seed --force
+          php artisan config:clear
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+          
+          # Generate sitemap
+          php artisan sitemap:generate
+          
+          # Clear any old cached files
+          php artisan cache:clear
