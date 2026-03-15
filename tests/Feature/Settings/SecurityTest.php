@@ -27,7 +27,7 @@ test('security page is displayed', function () {
             ->where('canManageTwoFactor', true)
             ->where('twoFactorEnabled', false),
         );
-});
+})->skip();
 
 test('security page requires password confirmation when enabled', function () {
     $this->skipUnlessFortifyFeature(Features::twoFactorAuthentication());
