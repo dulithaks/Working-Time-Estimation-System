@@ -79,7 +79,7 @@ export default function Tasks() {
                                             {task.title}
                                         </td>
                                         <td className="px-4 py-3 text-muted-foreground">
-                                            {task.start_date}
+                                            {task.start_date ?? '-'}
                                         </td>
                                         <td className="px-4 py-3 text-muted-foreground">
                                             {task.end_date ?? '-'}

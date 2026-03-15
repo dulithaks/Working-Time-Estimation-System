@@ -61,7 +61,6 @@ export default function CreateTask() {
                                     id="start_date"
                                     name="start_date"
                                     type="datetime-local"
-                                    required
                                 />
                             </div>
                             <div className="grid gap-2">
