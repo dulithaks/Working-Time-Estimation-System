@@ -16,9 +16,14 @@ class TaskController extends Controller
      */
     public function index()
     {
-        $tasks = Task::with('user')
-            ->orderBy('start_date')
-            ->get()
+        $query = Task::with('user')->orderBy('start_date');
+
+        // Filter tasks based on user role
+        if (auth()->user()?->role === 'Engineer') {
+            $query->where('user_id', auth()->id());
+        }
+
+        $tasks = $query->get()
             ->map(fn (Task $task) => [
                 'id' => $task->id,
                 'title' => $task->title,
