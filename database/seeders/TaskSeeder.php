@@ -17,7 +17,7 @@ class TaskSeeder extends Seeder
     {
         Task::truncate();
 
-        $userId = User::first()?->id;
+        $userId = User::where('role', 'Engineer')->first()?->id;
 
         $tasks = [
             [
