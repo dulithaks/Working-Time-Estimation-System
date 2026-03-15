@@ -3,13 +3,18 @@ set -e
 
 cd /var/www/html
 
+# Ensure .env exists (may have been excluded by .dockerignore)
+if [ ! -f .env ]; then
+    cp .env.example .env
+fi
+
 # Generate an app key if one was not injected via environment
 if [ -z "$APP_KEY" ]; then
     php artisan key:generate --force
 fi
 
-# Run database migrations
-php artisan migrate --force
+# Run database migrations (non-fatal on first deploy with empty DB)
+php artisan migrate --force || echo "[entrypoint] migrate failed — continuing"
 
 # Seed the database (non-fatal: may already be seeded on subsequent deployments)
 php artisan db:seed --force || echo "[entrypoint] db:seed skipped or failed — continuing"
